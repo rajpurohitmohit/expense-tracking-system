@@ -3,7 +3,14 @@
 A full-stack web application that enables users to efficiently track, manage, and analyze personal expenses with real-time insights and intuitive data visualization.
 
 ---
+## Web Page Captures
 
+![View Expenses](Previews/1.png)
+![Add/Update Expenses](Previews/2.png)
+![Analytics](Previews/3.png)
+![Analytics](Previews/4.png)
+
+---
 ## Key Features
 
 - **Daily Expense Management**: Add, update, and delete multiple expenses per day with categorization
