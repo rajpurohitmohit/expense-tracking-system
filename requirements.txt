@@ -1,0 +1,8 @@
+streamlit
+pandas
+datetime
+uvicorn
+mysql-connector-python
+requests
+fastapi
+python-dotenv
