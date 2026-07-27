@@ -117,5 +117,3 @@ def fetch_expense_summary(start_date, end_date):
     cursor.close()
     connection.close()
     return values
-
-fetch_expense_summary("2025-01-01", "2025-01-11")
