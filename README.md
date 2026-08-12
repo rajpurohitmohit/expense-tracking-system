@@ -4,7 +4,10 @@ A full-stack web application that enables users to efficiently track, manage, an
 
 ---
 ## Video Explanation
-<iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7400923550749966336?collapsed=1" height="542" width="504" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
+
+[![Watch the Expense Tracker video](./assets/demo-thumbnail.png)](
+https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7400923550749966336?collapsed=1
+)
 
 ---
 ## Web Page Captures
