@@ -10,7 +10,7 @@ load_dotenv()
 
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
-def analytics_tab():
+def analytics_tab(headers):
     col1, col2 = st.columns(2)
     with col1:
         start_date = st.date_input("Start Date", datetime(2025, 8, 1))
@@ -24,7 +24,7 @@ def analytics_tab():
             "end_date": end_date.strftime("%Y-%m-%d")
         }
         
-        response = requests.post(f"{API_URL}/analytics", json=payload)
+        response = requests.post(f"{API_URL}/analytics", headers=headers, json=payload)
 
         response = response.json()
 

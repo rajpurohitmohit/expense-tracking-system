@@ -7,9 +7,9 @@ load_dotenv()
 
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
-def add_update_tab():
+def add_update_tab(headers):
     selected_date = st.date_input("Enter Date", datetime(2025, 1, 2), label_visibility="collapsed")
-    response = requests.get(f"{API_URL}/expenses/{selected_date}")     
+    response = requests.get(f"{API_URL}/expenses/{selected_date}", headers=headers)
 
     if (response.status_code == 200):
         expenses = response.json() 
@@ -69,7 +69,7 @@ def add_update_tab():
                         "notes": notes
                     })
 
-            response = requests.post(url=f"{API_URL}/expenses/{selected_date}", json=expenses_for_submit)
+            response = requests.post(url=f"{API_URL}/expenses/{selected_date}", headers=headers, json=expenses_for_submit)
             if response.status_code == 200:
                 st.success("Expense Updated Successfully!")
             else:
