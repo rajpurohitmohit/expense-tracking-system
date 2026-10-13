@@ -27,6 +27,7 @@ https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7400923550749966336?co
 - **Batch Operations**: Handle up to 5 expense entries simultaneously for streamlined data entry
 - **Interactive UI**: Clean, tab-based interface with immediate feedback on all operations
 - **Category-Based Organization**: Predefined categories (Rent, Food, Shopping, Entertainment, Other) for consistent tracking
+- **Multi-User Profiles**: Each username has an isolated expense list and analytics view
 
 ---
 
@@ -104,13 +105,18 @@ CREATE DATABASE expense_manager;
 USE expense_manager;
 CREATE TABLE expenses (
     id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
     expense_date DATE NOT NULL,
     amount FLOAT NOT NULL,
     category VARCHAR(50) NOT NULL,
     notes TEXT,
-    INDEX idx_date (expense_date)
+    INDEX idx_user_date (user_id, expense_date)
 );
 ```
+
+On startup, the backend creates the separate `users` table and adds the
+`password_hash` and `user_id` columns when upgrading an existing database.
+Existing records are assigned to the legacy `default` profile.
 
 ### Step 4: Configure Environment Variables
 Create a `.env` file in the root directory (copy from `.env.example`):
@@ -129,6 +135,9 @@ DB_USER=root
 DB_PASSWORD=your_password_here
 DB_NAME=expense_manager
 DB_PORT=3306
+
+# Use a long random value in production
+AUTH_SECRET_KEY=replace_with_a_long_random_secret
 
 # Server Configuration
 BACKEND_HOST=127.0.0.1
@@ -153,12 +162,17 @@ Access the application at `http://localhost:8501`
 
 ## Usage / Workflow
 
-### 1. View All Expenses
+### 1. Create an Account or Log In
+- Open the Streamlit app at `http://localhost:8501`
+- Use **Sign up** to create a username and password, or use **Login** for an existing account
+- Passwords are stored as salted PBKDF2 hashes; the frontend sends a signed session token to the API
+
+### 2. View All Expenses
 - Navigate to **"View Expenses"** tab
 - See all recorded expenses sorted by date (descending)
 - Data displayed in interactive table format
 
-### 2. Add/Update Expenses
+### 3. Add/Update Expenses
 - Select **"Add/Update"** tab
 - Choose a date using the date picker
 - System automatically loads existing expenses for that date
@@ -166,7 +180,7 @@ Access the application at `http://localhost:8501`
 - Click **Submit** to persist changes
 - Backend performs atomic operation: deletes old entries and inserts new ones
 
-### 3. Analyze Spending Patterns
+### 4. Analyze Spending Patterns
 - Go to **"Analytics"** tab
 - Select start and end dates for analysis period
 - Click **"Get Analytics"**
@@ -179,10 +193,16 @@ Access the application at `http://localhost:8501`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/expenses` | Retrieve all expenses |
-| `GET` | `/expenses/{date}` | Get expenses for specific date |
-| `POST` | `/expenses/{date}` | Add/Update expenses for date |
-| `POST` | `/analytics` | Get spending analytics for date range |
+| `POST` | `/auth/signup` | Create a user account and return a session token |
+| `POST` | `/auth/login` | Authenticate a user and return a session token |
+| `GET` | `/expenses` | Retrieve the authenticated user's expenses |
+| `GET` | `/expenses/{date}` | Get the authenticated user's expenses for a date |
+| `POST` | `/expenses/{date}` | Add/update the authenticated user's expenses for a date |
+| `POST` | `/analytics` | Get the authenticated user's spending analytics |
+
+Expense endpoints require `Authorization: Bearer <token>`. The backend gets
+the user ID from the verified token, so clients cannot select another user's
+expenses by changing a URL parameter.
 
 ---
 
@@ -193,6 +213,7 @@ expense-tracking-system/
 │
 ├── backend/
 │   ├── main.py              # FastAPI application and route handlers
+│   ├── auth.py              # Password hashing and signed session tokens
 │   └── database.py          # MySQL connection and CRUD operations
 │
 ├── frontend/
@@ -233,7 +254,7 @@ expense-tracking-system/
 ## Future Enhancements
 
 
-- **User Authentication**: Multi-user support with secure login (JWT/OAuth2)
+- **User Authentication**: Add email verification, password reset, and refresh tokens
 - **Data Export**: CSV/PDF export functionality for tax reporting
 - **Advanced Filters**: Search by category, amount range, and keywords in notes
 - **Recurring Expenses**: Template system for monthly bills and subscriptions

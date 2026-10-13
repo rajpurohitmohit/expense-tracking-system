@@ -9,8 +9,12 @@ load_dotenv()
 
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
-def view_expenses_tab():
-    response = requests.get(f"{API_URL}/expenses/")
+def view_expenses_tab(headers):
+    st.subheader("Your Expenses")
+    if st.button("Refresh expenses"):
+        st.rerun()
+
+    response = requests.get(f"{API_URL}/expenses", headers=headers, timeout=10)
 
     if (response.status_code == 200):
         expenses = response.json()
