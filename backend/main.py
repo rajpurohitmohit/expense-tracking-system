@@ -10,9 +10,9 @@ import database
 app = FastAPI()
 
 
-@app.on_event("startup")
-def startup():
-    database.initialize_database()
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 app.add_middleware(
     CORSMiddleware,
