@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+_database_initialized = False
+
 # Establishing the Connection with DB
 def get_connection():
     connection = mysql.connector.connect(
@@ -84,7 +86,15 @@ def initialize_database():
     connection.close()
 
 
+def ensure_database_initialized():
+    global _database_initialized
+    if not _database_initialized:
+        initialize_database()
+        _database_initialized = True
+
+
 def create_user(username, password_hash):
+    ensure_database_initialized()
     connection, cursor = get_connection()
     cursor.execute(
         "INSERT INTO users (username, password_hash) VALUES (%s, %s)",
@@ -97,6 +107,7 @@ def create_user(username, password_hash):
 
 
 def get_user(username):
+    ensure_database_initialized()
     connection, cursor = get_connection()
     cursor.execute(
         "SELECT id, username, password_hash FROM users WHERE username = %s",
@@ -110,6 +121,7 @@ def get_user(username):
 
 # Getting All expenses
 def get_all_expenses(user_id):
+    ensure_database_initialized()
     connection, cursor = get_connection()
 
     cursor.execute("SELECT expense_date, amount, category, notes FROM expenses WHERE user_id = %s ORDER BY expense_date DESC", (user_id,))
@@ -127,6 +139,7 @@ def get_all_expenses(user_id):
 
 # Getting expenses by Date
 def get_expense(user_id, expense_date):
+    ensure_database_initialized()
     connection, cursor = get_connection()
 
     cursor.execute("SELECT amount, category, notes FROM expenses WHERE user_id = %s AND expense_date = %s", (user_id, expense_date))
@@ -138,6 +151,7 @@ def get_expense(user_id, expense_date):
 
 # For Inserting the values in expenses
 def insert_expense(user_id, expense_date, amount, category, notes):
+    ensure_database_initialized()
     connection, cursor = get_connection()
 
     cursor.execute("INSERT INTO expenses (user_id, expense_date, amount, category, notes) VALUES (%s, %s, %s, %s, %s)", (user_id, expense_date, amount, category, notes))
@@ -178,6 +192,7 @@ def update_expense(expense_date):
 
 # Deleting expense by Date
 def delete_expense(user_id, expense_date):
+    ensure_database_initialized()
     connection, cursor = get_connection()
 
     cursor.execute(
@@ -191,6 +206,7 @@ def delete_expense(user_id, expense_date):
 
 # Fetching Expense Summary
 def fetch_expense_summary(user_id, start_date, end_date):
+    ensure_database_initialized()
     connection, cursor = get_connection()   
 
     cursor.execute("SELECT category, SUM(amount) AS total FROM expenses WHERE user_id = %s AND expense_date BETWEEN %s AND %s GROUP BY category", (user_id, start_date, end_date))
