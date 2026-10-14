@@ -23,6 +23,11 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def root():
+    return {"message": "Expense Tracking API is running"}
+
+
 class Expenses(BaseModel):
     amount: float
     category: str
